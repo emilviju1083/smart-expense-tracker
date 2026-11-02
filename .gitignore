@@ -5,3 +5,4 @@ __pycache__/
 expenses.json
 .env
 .vscode/
+expenses.csv
