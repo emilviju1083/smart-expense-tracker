@@ -1,4 +1,5 @@
 import argparse
+import csv
 import json
 from dataclasses import dataclass, asdict
 from datetime import date, datetime
@@ -42,6 +43,30 @@ def load_expenses() -> list[dict]:
     except (json.JSONDecodeError, OSError):
         print("Error: Could not read expenses file.")
         return []
+
+# Export expenses to a CSV file
+def export_expenses(args):
+    expenses = load_expenses()
+
+    if not expenses:
+        print("No expenses found to export.")
+        return
+
+    fieldnames = ["id", "amount", "category", "date", "description"]
+
+    try:
+        with open("expenses.csv", "w", newline="", encoding="utf-8-sig") as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            writer.writerows(expenses)
+
+        print("Expenses exported successfully!")
+        print("File created: expenses.csv")
+
+    except (OSError, csv.Error) as error:
+        print("Error exporting expenses:", error)
+
 
 
 # Save expenses to JSON file
@@ -307,6 +332,16 @@ def main():
     )
 
     convert.set_defaults(func=convert_currency)
+
+    
+    # Export expenses command
+    export = commands.add_parser(
+        "export",
+        help="Export expenses to a CSV file"
+    )
+
+    export.set_defaults(func=export_expenses)
+
 
     args = parser.parse_args()
     args.func(args)
